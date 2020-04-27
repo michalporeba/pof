@@ -2,13 +2,26 @@ using System;
 
 public class Message
 {
-    public string Hash { get; }
-    public MessageContent Content { get; }
+    private readonly MessageContent _content;
 
-    public class MessageContent
+    public string Hash { get; }
+    
+    public string PropertyName => _content.PropertyName;
+    public object Value => _content.Value;
+
+    public Message(string propertyName, object value)
     {
-        public string MessageType { get; set; }
-        public Guid ObjectId { get; set; }
-               
+        _content = new MessageContent() 
+        {
+            PropertyName = propertyName,
+            Value = value
+        };
+    }
+
+    private class MessageContent
+    {
+        public Guid ObjectId { get; set; } = Guid.Empty;
+        public string PropertyName { get; set; }
+        public object Value { get; set; }
     }
 }

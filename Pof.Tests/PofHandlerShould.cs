@@ -22,7 +22,7 @@ namespace Pof.Tests
         public void update_property_from_message(string value)
         {
             var handler = new PofHandler<TestEntity>();
-            handler.Handle(new ValueChangedMessage<string>(value));
+            handler.Handle(new Message(nameof(TestEntity.StringProperty), value));
             Assert.That(handler.Entity.StringProperty, Is.EqualTo(value));
         }
 
