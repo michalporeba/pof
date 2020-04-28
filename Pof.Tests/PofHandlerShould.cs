@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Pof.Tests.TestData;
 
 namespace Pof.Tests
 {
@@ -20,17 +21,15 @@ namespace Pof.Tests
             Assert.That(_handler.Entity, Is.Not.Null);
         }
 
-        [TestCase("abc")]
-        [TestCase("cba")]
-        public void update_string_property_from_message(string value)
+        [Test]
+        public void update_string_property_from_message([ShortStrings]string value)
         {
             _handler.Handle(new Message(nameof(TestEntity.StringProperty), value));
             Assert.That(_handler.Entity.StringProperty, Is.EqualTo(value));
         }
 
-        [TestCase(11)]
-        [TestCase(145)]
-        public void update_string_property_from_message(int value)
+        [Test]
+        public void update_int_property_from_message([SmallIntegers]int value)
         {
             _handler.Handle(new Message(nameof(TestEntity.IntegerProperty), value));
             Assert.That(_handler.Entity.IntegerProperty, Is.EqualTo(value));
@@ -52,7 +51,7 @@ namespace Pof.Tests
             Assert.That(message.Value, Is.EqualTo(value), "Value is incorrect");
         }
 
-        public class TestEntity : IPofEntity
+        class TestEntity : IPofEntity
         {
             public Guid Id { get; } = Guid.Empty;
             public string StringProperty { get; set; }
