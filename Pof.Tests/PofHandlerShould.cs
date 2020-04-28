@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using NUnit.Framework;
 using Pof.Tests.TestData;
@@ -7,7 +6,7 @@ namespace Pof.Tests
 {
     public class PofEntityShould
     {
-        private PofHandler<TestEntity> _handler;
+        private PofHandler<TestEntity> _handler = new PofHandler<TestEntity>();
 
         [SetUp]
         public void Setup()
@@ -45,16 +44,20 @@ namespace Pof.Tests
         [TestCase("StringProperty", "b")]
         public void have_message_for_the_changed_properties(string propertyName, object value)
         {
-            _handler.Entity.StringProperty = value.ToString();
+            SetProperty(_handler.Entity, nameof(TestEntity.StringProperty), value);
             var message = _handler.GetNewMessages().FirstOrDefault();
             Assert.That(message.PropertyName, Is.EqualTo(propertyName), "Wrong property name");
             Assert.That(message.Value, Is.EqualTo(value), "Value is incorrect");
         }
 
-        class TestEntity : IPofEntity
+        private static void SetProperty(object target, string property, object value)
         {
-            public Guid Id { get; } = Guid.Empty;
-            public string StringProperty { get; set; }
+            target.GetType().GetProperty(property)?.SetValue(target, value);
+        }
+        
+        private class TestEntity : IPofEntity
+        {
+            public string StringProperty { get; set; } = string.Empty;
             public int IntegerProperty { get; set; }
         }
     }

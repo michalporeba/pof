@@ -1,6 +1,6 @@
-using System;
-
-public interface IPofEntity
+namespace Pof
 {
-    Guid Id { get; }
+    public interface IPofEntity
+    {
+    }
 }

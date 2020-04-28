@@ -1,27 +1,25 @@
-using System;
-
-public class Message
+namespace Pof
 {
-    private readonly MessageContent _content;
-
-    public string Hash { get; }
-    
-    public string PropertyName => _content.PropertyName;
-    public object Value => _content.Value;
-
-    public Message(string propertyName, object value)
+    public class Message
     {
-        _content = new MessageContent() 
+        private readonly MessageContent _content;
+
+        public string PropertyName => _content.PropertyName;
+        public object? Value => _content.Value;
+
+        public Message(string propertyName, object? value)
         {
-            PropertyName = propertyName,
-            Value = value
-        };
-    }
+            _content = new MessageContent
+            {
+                PropertyName = propertyName,
+                Value = value
+            };
+        }
 
-    private class MessageContent
-    {
-        public Guid ObjectId { get; set; } = Guid.Empty;
-        public string PropertyName { get; set; }
-        public object Value { get; set; }
+        private class MessageContent
+        {
+            public string PropertyName { get; set; } = string.Empty;
+            public object? Value { get; set; }
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Pof
 {
@@ -21,8 +20,8 @@ namespace Pof
                 var originalValue = property.GetValue(_original);
                 var newValue = property.GetValue(Entity);
 
-                if ((originalValue == null && newValue != null)
-                    || (originalValue != null && !originalValue.Equals(newValue))
+                if (originalValue == null && newValue != null
+                    || originalValue != null && !originalValue.Equals(newValue)
                 )
                 {
                     yield return new Message(property.Name, newValue);
