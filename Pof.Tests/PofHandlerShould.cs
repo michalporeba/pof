@@ -35,21 +35,46 @@ namespace Pof.Tests
         }
 
         [Test]
+        public void update_multiple_properties_from_a_collection_of_messages(
+            [ShortStrings]string stringValue,
+            [SmallIntegers]int integerValue)
+        {
+            var messages = new[]
+            {
+                new Message(nameof(TestEntity.IntegerProperty), integerValue),
+                new Message(nameof(TestEntity.StringProperty), stringValue)
+            };
+            
+            _handler.Handle(messages);
+
+            Assert.That(_handler.Entity.IntegerProperty, Is.EqualTo(integerValue), "Integer Value");
+            Assert.That(_handler.Entity.StringProperty, Is.EqualTo(stringValue), "String Value");
+        }
+        
+        [Test]
         public void have_no_new_messages_when_no_changes_have_been_made_to_the_entity()
         {
             Assert.That(_handler.GetNewMessages(), Is.Empty);
         }
 
-        [TestCase("StringProperty", "a")]
-        [TestCase("StringProperty", "b")]
-        public void have_message_for_the_changed_properties(string propertyName, object value)
+        [TestCase(nameof(TestEntity.IntegerProperty), 1)]
+        [TestCase(nameof(TestEntity.IntegerProperty), 13)]
+        [TestCase(nameof(TestEntity.StringProperty), "a")]
+        [TestCase(nameof(TestEntity.StringProperty), "b")]
+        public void have_message_for_properties_changed_directly(string propertyName, object value)
         {
-            SetProperty(_handler.Entity, nameof(TestEntity.StringProperty), value);
+            SetProperty(_handler.Entity, propertyName, value);
             var message = _handler.GetNewMessages().FirstOrDefault();
             Assert.That(message.PropertyName, Is.EqualTo(propertyName), "Wrong property name");
             Assert.That(message.Value, Is.EqualTo(value), "Value is incorrect");
         }
 
+        [Test]
+        public void have_no_conflicts_when_no_messages_have_been_processed()
+        {
+            Assert.That(_handler.HasConflicts(), Is.False);
+        }
+        
         private static void SetProperty(object target, string property, object value)
         {
             target.GetType().GetProperty(property)?.SetValue(target, value);

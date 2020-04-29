@@ -13,6 +13,20 @@ namespace Pof
             property.SetValue(Entity, message.Value);
         }
 
+        public void Handle(IEnumerable<Message> messages)
+        {
+            foreach (var message in messages)
+            {
+                Handle(message);
+            }
+        }
+
+        public bool HasConflicts()
+        {
+            // TODO: obviously it will not be good enough long term, but there are no tests to prove it just yet
+            return false;
+        }
+
         public IEnumerable<Message> GetNewMessages()
         {
             foreach(var property in Entity.GetType().GetProperties())
