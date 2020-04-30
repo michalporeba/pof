@@ -84,7 +84,7 @@ namespace Pof.Tests
             Assert.That(_handler.HasConflicts(), Is.True, "There should be a conflict");
             Assert.That(_handler.Entity.StringProperty, Is.EqualTo("b"), "Last value should be 'b'");
         }
-        
+
         private static void SetProperty(object target, string property, object value)
         {
             target.GetType().GetProperty(property)?.SetValue(target, value);
