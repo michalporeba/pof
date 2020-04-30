@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Pof
 {
@@ -6,9 +7,18 @@ namespace Pof
         where TEntity : IPofEntity, new()
     {
         private readonly TEntity _original = new TEntity();
+        private readonly Dictionary<string, List<Candidate>> _candidates = new Dictionary<string, List<Candidate>>();
+
         public TEntity Entity { get; } = new TEntity();
         public void Handle(Message message)
         {
+            if (!_candidates.ContainsKey(message.PropertyName))
+            {
+                _candidates.Add(message.PropertyName, new List<Candidate>());
+            }
+            
+            _candidates[message.PropertyName].Add(new Candidate(message.Hash, message.Value));
+            
             var property = Entity.GetType().GetProperty(message.PropertyName);
             property.SetValue(Entity, message.Value);
         }
@@ -23,8 +33,7 @@ namespace Pof
 
         public bool HasConflicts()
         {
-            // TODO: obviously it will not be good enough long term, but there are no tests to prove it just yet
-            return false;
+            return _candidates.Any(p => p.Value.Count > 1);
         }
 
         public IEnumerable<Message> GetNewMessages()

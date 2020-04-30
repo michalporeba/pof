@@ -74,6 +74,16 @@ namespace Pof.Tests
         {
             Assert.That(_handler.HasConflicts(), Is.False);
         }
+
+        [Test]
+        public void identify_conflict_if_the_same_property_is_initialised_twice()
+        {
+            _handler.Handle(new Message(nameof(TestEntity.StringProperty), "a"));
+            _handler.Handle(new Message(nameof(TestEntity.StringProperty), "b"));
+
+            Assert.That(_handler.HasConflicts(), Is.True, "There should be a conflict");
+            Assert.That(_handler.Entity.StringProperty, Is.EqualTo("b"), "Last value should be 'b'");
+        }
         
         private static void SetProperty(object target, string property, object value)
         {
