@@ -85,6 +85,47 @@ namespace Pof.Tests
             Assert.That(_handler.Entity.StringProperty, Is.EqualTo("b"), "Last value should be 'b'");
         }
 
+        [Test]
+        public void set_property_value_to_the_value_from_the_last_message()
+        {
+            var message1 = new Message(nameof(TestEntity.StringProperty), "a");    
+            var message2 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "b");
+            var message3 = new Message(nameof(TestEntity.StringProperty), message2.Hash, "c");
+            
+            _handler.Handle(new [] { message1, message2, message3});
+            Assert.That(_handler.HasConflicts, Is.False, "There should be no conflicts");
+            Assert.That(_handler.Entity.StringProperty, Is.EqualTo("c"), "Current value should be 'c'");
+        }
+        
+        [Test]
+        public void set_property_value_to_the_value_from_the_last_message_regardless_of_order_of_processing()
+        {
+            var message1 = new Message(nameof(TestEntity.StringProperty), "a");    
+            var message2 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "b");
+            var message3 = new Message(nameof(TestEntity.StringProperty), message2.Hash, "c");
+            
+            _handler.Handle(new [] { message3, message2, message1});
+            Assert.That(_handler.HasConflicts, Is.False, "There should be no conflicts");
+            Assert.That(_handler.Entity.StringProperty, Is.EqualTo("c"), "Current value should be 'c'");
+        }
+
+        [Test]
+        public void resolve_conflicts()
+        {
+            var message1 = new Message(nameof(TestEntity.StringProperty), "a");    
+            var message2 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "b");
+            var message3 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "c");
+            
+            _handler.Handle(new [] { message1, message2, message3});
+            Assume.That(_handler.HasConflicts(), Is.True, "There should be conflict in the setup");
+            
+            var message4 = new Message(nameof(TestEntity.StringProperty), new [] { message2.Hash, message3.Hash }, "d");
+            _handler.Handle(message4);
+            
+            Assert.That(_handler.HasConflicts, Is.False, "There should be no conflicts any more");
+            Assert.That(_handler.Entity.StringProperty, Is.EqualTo("d"), "Current value should be 'd'");
+        }
+        
         private static void SetProperty(object target, string property, object value)
         {
             target.GetType().GetProperty(property)?.SetValue(target, value);

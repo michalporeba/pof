@@ -53,5 +53,22 @@ namespace Pof.Tests
             var message2 = new Message("propertyName", Guid.NewGuid().ToString());
             Assert.That(message1.Hash, Is.Not.EqualTo(message2.Hash));
         }
+
+        [Test]
+        public void two_messages_with_the_same_parents_should_have_the_same_hash()
+        {
+            var parent = new Message("propertyName", "oldValue");
+            var message1 = new Message("propertyName", parent.Hash, "newValue");
+            var message2 = new Message("propertyName", parent.Hash, "newValue");
+            Assert.That(message1.Hash, Is.EqualTo(message2.Hash));
+        }
+        
+        [Test]
+        public void two_messages_with_different_parents_should_have_different_hashes()
+        {
+            var message1 = new Message("propertyName", "fakeHash1", "newValue");
+            var message2 = new Message("propertyName", "fakeHash2", "newValue");
+            Assert.That(message1.Hash, Is.Not.EqualTo(message2.Hash));
+        }
     }
 }

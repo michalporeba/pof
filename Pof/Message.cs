@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using System.Collections.Immutable;
 
 namespace Pof
 {
@@ -9,14 +10,27 @@ namespace Pof
         private readonly MessageContent _content;
 
         public string Hash { get; }
+        public ImmutableSortedSet<string> Predecessors => _content.Predecessors;
         public string PropertyName => _content.PropertyName;
         public object? Value => _content.Value;
 
         public Message(string propertyName, object? value)
+            : this(propertyName, new[] { string.Empty }, value)
         {
-            _content = new MessageContent(propertyName, value);
+        }
+
+        public Message(string propertyName, string predecessor, object? value)
+            : this(propertyName, new[] {predecessor}, value)
+        {
+        }
+        
+        public Message(string propertyName, string[] predecessors, object? value)
+        {
+            _content = new MessageContent(propertyName, predecessors, value);
             Hash = CalculateHash(_content);
         }
+
+        public override string ToString() => $"Property={PropertyName}; Value={Value}; Hash={Hash}";
 
         private static string CalculateHash(MessageContent content)
         {
@@ -35,11 +49,13 @@ namespace Pof
         
         private readonly struct MessageContent
         {
+            public ImmutableSortedSet<string> Predecessors { get; }
             public string PropertyName { get; }
             public object? Value { get; }
 
-            public MessageContent(string propertyName, object? value)
+            public MessageContent(string propertyName, string[] parentHashes, object? value)
             {
+                Predecessors = ImmutableSortedSet.Create(parentHashes);
                 PropertyName = propertyName;
                 Value = value;
             }
