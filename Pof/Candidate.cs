@@ -7,8 +7,8 @@
 
         public Candidate(string messageHash, object? value)
         {
-            this.MessageHash = messageHash;
-            this.Value = value;
+            MessageHash = messageHash;
+            Value = value;
         }
     }
 }

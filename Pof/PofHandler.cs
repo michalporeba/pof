@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Pof.Internal;
 
 namespace Pof
 {
@@ -7,35 +8,16 @@ namespace Pof
         where TEntity : IPofEntity, new()
     {
         private readonly TEntity _original = new TEntity();
-        private readonly Dictionary<string, List<Candidate>> _candidates = new Dictionary<string, List<Candidate>>();
-        private readonly Dictionary<string, List<string>> _predecessors = new Dictionary<string, List<string>>();
-
+        private readonly Dictionary<string, IHandler> _handlers = new Dictionary<string, IHandler>();
         public TEntity Entity { get; } = new TEntity();
         public void Handle(Message message)
         {
-            // ensure we track candidates for every value
-            if (!_candidates.ContainsKey(message.PropertyName))
+            if (!_handlers.ContainsKey(message.PropertyName))
             {
-                _candidates.Add(message.PropertyName, new List<Candidate>());
+                _handlers.Add(message.PropertyName, new PropertyHandler(Entity, message.PropertyName));
             }
-
-            if (!_predecessors.ContainsKey(message.PropertyName))
-            {
-                _predecessors.Add(message.PropertyName, new List<string>());
-            }
-
-            if (!_predecessors[message.PropertyName].Contains(message.Hash))
-            {
-                _candidates[message.PropertyName].Add(new Candidate(message.Hash, message.Value));
-                // set the value
-                var property = Entity.GetType().GetProperty(message.PropertyName);
-                property.SetValue(Entity, message.Value);
-            }
-
-            var newPredecessors = message.Predecessors.Except(_predecessors[message.PropertyName]);
-            _candidates[message.PropertyName].RemoveAll(c => newPredecessors.Contains(c.MessageHash));
             
-            _predecessors[message.PropertyName].AddRange(message.Predecessors);
+            _handlers[message.PropertyName].Handle(message);
         }
 
         public void Handle(IEnumerable<Message> messages)
@@ -48,7 +30,7 @@ namespace Pof
 
         public bool HasConflicts()
         {
-            return _candidates.Any(p => p.Value.Count > 1);
+            return _handlers.Any(x => x.Value.HasConflicts());
         }
 
         public IEnumerable<Message> GetNewMessages()
