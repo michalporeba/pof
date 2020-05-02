@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Pof
 {
-    public class Message
+    public readonly struct Message
     {
         private readonly MessageContent _content;
 
@@ -14,16 +14,11 @@ namespace Pof
 
         public Message(string propertyName, object? value)
         {
-            _content = new MessageContent
-            {
-                PropertyName = propertyName,
-                Value = value
-            };
-
+            _content = new MessageContent(propertyName, value);
             Hash = CalculateHash(_content);
         }
 
-        private string CalculateHash(MessageContent content)
+        private static string CalculateHash(MessageContent content)
         {
             var json = JsonConvert.SerializeObject(content);
             using var sha = SHA256.Create();
@@ -38,10 +33,16 @@ namespace Pof
             return stringBuilder.ToString();
         }
         
-        private class MessageContent
+        private readonly struct MessageContent
         {
-            public string PropertyName { get; set; } = string.Empty;
-            public object? Value { get; set; }
+            public string PropertyName { get; }
+            public object? Value { get; }
+
+            public MessageContent(string propertyName, object? value)
+            {
+                PropertyName = propertyName;
+                Value = value;
+            }
         }
     }
 }
