@@ -30,7 +30,7 @@ namespace Pof
             Hash = CalculateHash(_content);
         }
 
-        public override string ToString() => $"Property={PropertyName}; Value={Value}; Hash={Hash}";
+        public override string ToString() => $"Property: {PropertyName}; Value: {Value}; Hash: {Hash};";
 
         private static string CalculateHash(MessageContent content)
         {

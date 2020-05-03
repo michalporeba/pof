@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Pof.Tests.TestData;
 
@@ -69,6 +68,18 @@ namespace Pof.Tests
             var message1 = new Message("propertyName", "fakeHash1", "newValue");
             var message2 = new Message("propertyName", "fakeHash2", "newValue");
             Assert.That(message1.Hash, Is.Not.EqualTo(message2.Hash));
+        }
+
+        [Test]
+        public void include_specific_information_in_string_representation()
+        {
+            var propertyName = Guid.NewGuid().ToString().Substring(0, 4);
+            var propertyValue = Guid.NewGuid().ToString().Substring(0, 4);
+            var message = new Message(propertyName, propertyValue);
+            var value = message.ToString();
+            Assert.That(value, Contains.Substring(message.Hash), $"TShould contain value of {nameof(message.Hash)}");
+            Assert.That(value, Contains.Substring(message.PropertyName), $"Should contain value of {nameof(message.PropertyName)}");
+            Assert.That(value, Contains.Substring(message.Value?.ToString()), $"Should contain value of {nameof(message.Value)}");
         }
     }
 }
