@@ -4,7 +4,7 @@ namespace Pof
 {
     public interface IMessageHandler
     {
-        void Handle(Message message);
+        void HandleMessage(Message message);
         bool HasConflicts();
     }
 }

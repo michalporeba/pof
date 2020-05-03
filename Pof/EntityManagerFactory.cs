@@ -6,8 +6,8 @@
         {
             var manager = new EntityManager<TEntity>(entity);
             manager.Connect(messagePump);
-            var topic = entity.GetType().GetProperty("Id").GetValue(entity).ToString();
-            messagePump.Subscribe(topic, manager);
+            var topic = entity?.GetType().GetProperty("Id").GetValue(entity).ToString();
+            messagePump.Subscribe(topic ?? string.Empty, manager);
             return manager;
         }
     }

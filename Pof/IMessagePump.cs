@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Pof
+﻿namespace Pof
 {
     public interface IMessagePump
     {

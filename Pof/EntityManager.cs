@@ -23,21 +23,21 @@ namespace Pof
             _messagePump = messagePump;
         }
         
-        public void Handle(Message message)
+        public void HandleMessage(Message message)
         {
             if (!_handlers.ContainsKey(message.PropertyName))
             {
                 _handlers.Add(message.PropertyName, new PropertyHandler(Entity, message.PropertyName));
             }
             
-            _handlers[message.PropertyName].Handle(message);
+            _handlers[message.PropertyName].HandleMessage(message);
         }
 
         public void Handle(IEnumerable<Message> messages)
         {
             foreach (var message in messages)
             {
-                Handle(message);
+                HandleMessage(message);
             }
         }
 

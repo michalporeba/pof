@@ -16,7 +16,7 @@ namespace Pof.Internal
             _property = _object.GetType().GetProperty(propertyName);
         }
         
-        public void Handle(Message message)
+        public void HandleMessage(Message message)
         {
             if (!_predecessors.Contains(message.Hash))
             {
