@@ -5,5 +5,6 @@
     {
         void Connect(IMessagePump messagePump);
         TEntity Entity { get; }
+        string Topic { get; }
     }
 }

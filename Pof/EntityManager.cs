@@ -11,10 +11,12 @@ namespace Pof
         private IMessagePump? _messagePump;
         private readonly Dictionary<string, IMessageHandler> _handlers = new Dictionary<string, IMessageHandler>();
         public TEntity Entity { get; }
+        public string Topic { get; }
 
-        public EntityManager(TEntity entity)
+        public EntityManager(TEntity entity, string topic)
         {
             Entity = entity;
+            Topic = topic;
         }
         
         public void Connect(IMessagePump messagePump)
