@@ -1,15 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Pof.Internal;
 
 namespace Pof
 {
-    public class PofHandler<TEntity>
-        where TEntity : IPofEntity, new()
+    public class EntityManager<TEntity>
+        : IEntityManager<TEntity>
+        , IMessageHandler
     {
-        private readonly TEntity _original = new TEntity();
-        private readonly Dictionary<string, IHandler> _handlers = new Dictionary<string, IHandler>();
-        public TEntity Entity { get; } = new TEntity();
+        private IMessagePump? _messagePump;
+        private readonly Dictionary<string, IMessageHandler> _handlers = new Dictionary<string, IMessageHandler>();
+        public TEntity Entity { get; }
+
+        public EntityManager(TEntity entity)
+        {
+            Entity = entity;
+        }
+        
+        public void Connect(IMessagePump messagePump)
+        {
+            _messagePump = messagePump;
+        }
+        
         public void Handle(Message message)
         {
             if (!_handlers.ContainsKey(message.PropertyName))
@@ -37,7 +50,7 @@ namespace Pof
         {
             foreach(var property in Entity.GetType().GetProperties())
             {
-                var originalValue = property.GetValue(_original);
+                var originalValue = (object?)null;
                 var newValue = property.GetValue(Entity);
 
                 if (originalValue == null && newValue != null
