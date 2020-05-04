@@ -13,7 +13,7 @@ namespace Pof
         public TEntity Entity { get; }
         public string Topic { get; }
 
-        public EntityManager(TEntity entity, string topic)
+        internal EntityManager(TEntity entity, string topic)
         {
             Entity = entity;
             Topic = topic;

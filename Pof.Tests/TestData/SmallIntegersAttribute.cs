@@ -2,7 +2,7 @@
 
 namespace Pof.Tests.TestData
 {
-    public class SmallIntegersAttribute : ValueSourceAttribute
+    internal class SmallIntegersAttribute : ValueSourceAttribute
     {
         public SmallIntegersAttribute()
             : base(typeof(TestData), nameof(TestData.SmallIntegers))

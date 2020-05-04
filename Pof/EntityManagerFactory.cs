@@ -16,13 +16,28 @@ namespace Pof
             return Create<TEntity>(entity, messagePump, idProperty.GetValue(entity).ToString());
         }
         
-        public static IEntityManager<TEntity> Create<TEntity>(TEntity entity, IMessagePump messagePump, string topic)
+        public static IEntityManager<TEntity> Create<TEntity>(TEntity entity, IMessagePump pump, string topic)
             where TEntity : notnull
         {
+            if (string.IsNullOrWhiteSpace(topic))
+            {
+                throw new ArgumentOutOfRangeException(nameof(topic), $"{nameof(topic)} cannot be empty!");
+            }
+            
             var manager = new EntityManager<TEntity>(entity, topic);
-            manager.Connect(messagePump);
-            messagePump.Subscribe(topic ?? string.Empty, manager);
+            manager.Connect(pump);
+            pump.Subscribe(topic ?? string.Empty, manager);
             return manager;
+        }
+
+        public static IEntityManager<TEntity> Create<TEntity>(TEntity entity, string idPropertyName, IMessagePump pump)
+            where TEntity : notnull
+        {
+            var idProperty = entity.GetType().GetProperty(idPropertyName)
+                             ?? throw new ArgumentOutOfRangeException(nameof(idPropertyName),
+                                 $"Property {idPropertyName} does not exist on {entity.GetType()}");
+            var topic = idProperty.GetValue(entity).ToString();
+            return Create<TEntity>(entity, pump, topic);
         }
     }
 }
