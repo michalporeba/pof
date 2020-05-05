@@ -4,7 +4,7 @@ namespace Pof
 {
     public static class EntityManagerFactory
     {
-        public static IEntityManager<TEntity> Create<TEntity>(TEntity entity, IMessagePump messagePump)
+        public static EntityManager<TEntity> Create<TEntity>(TEntity entity, IMessagePump messagePump)
             where TEntity : notnull
         {
             var idProperty = entity.GetType().GetProperty("Id");
@@ -16,7 +16,7 @@ namespace Pof
             return Create<TEntity>(entity, messagePump, idProperty.GetValue(entity).ToString());
         }
         
-        public static IEntityManager<TEntity> Create<TEntity>(TEntity entity, IMessagePump pump, string topic)
+        public static EntityManager<TEntity> Create<TEntity>(TEntity entity, IMessagePump pump, string topic)
             where TEntity : notnull
         {
             if (string.IsNullOrWhiteSpace(topic))
@@ -30,7 +30,7 @@ namespace Pof
             return manager;
         }
 
-        public static IEntityManager<TEntity> Create<TEntity>(TEntity entity, string idPropertyName, IMessagePump pump)
+        public static EntityManager<TEntity> Create<TEntity>(TEntity entity, string idPropertyName, IMessagePump pump)
             where TEntity : notnull
         {
             var idProperty = entity.GetType().GetProperty(idPropertyName)

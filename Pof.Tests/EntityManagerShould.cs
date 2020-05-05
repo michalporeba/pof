@@ -25,6 +25,8 @@ namespace Pof.Tests
             Assert.That(manager.Entity, Is.Not.Null);
         }
 
+        #region "Updating entity from messages"
+        
         [Test]
         public void update_string_property_from_message([ShortStrings]string value)
         {
@@ -125,16 +127,20 @@ namespace Pof.Tests
             Assert.That(manager.Entity.StringProperty, Is.EqualTo("d"), "Current value should be 'd'");
         }
         
+        #endregion
+        
+        #region "Emiting messages"
+        
+        [Test]
+        
+        // Push() // Commit() // Confirm()
+        // Pause()
+        // Resume()
+        
+        #endregion 
+        
         #region "Pump Interactions"
 
-        [Test]
-        public void subscribe_to_pump_on_creation()
-        {
-            var manager = CreateTestEntityManager();
-            var topic = _testEntity.Id.ToString();
-            _pump.Verify(x => x.Connect(topic, manager), Times.Once);
-        }
-        
         #endregion    
         
         private static void SetProperty(object target, string property, object value)
