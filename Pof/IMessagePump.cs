@@ -2,6 +2,6 @@
 {
     public interface IMessagePump
     {
-        void Subscribe(string topic, IMessageHandler handler);
+        void Connect(string topic, IMessageHandler handler);
     }
 }

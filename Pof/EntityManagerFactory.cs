@@ -26,7 +26,7 @@ namespace Pof
             
             var manager = new EntityManager<TEntity>(entity, topic);
             manager.Connect(pump);
-            pump.Subscribe(topic ?? string.Empty, manager);
+            pump.Connect(topic ?? string.Empty, manager);
             return manager;
         }
 

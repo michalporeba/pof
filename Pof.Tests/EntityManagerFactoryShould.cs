@@ -37,7 +37,7 @@ namespace Pof.Tests
             var topic = Guid.NewGuid().ToString().Substring(0, 4);
             var manager = EntityManagerFactory.Create(entity, _pump.Object, topic);
             Assert.That(manager.Topic, Is.EqualTo(topic), $"{nameof(manager.Topic)} should be {topic}");
-            _pump.Verify(x => x.Subscribe(topic, manager), $"{topic} should be passed to pump as topic");
+            _pump.Verify(x => x.Connect(topic, manager), $"{topic} should be passed to pump as topic");
         }
         
         [Test]
@@ -49,7 +49,7 @@ namespace Pof.Tests
             var topic = entity.GetType().GetProperty("Id")?.GetValue(entity)?.ToString() ?? string.Empty; 
             var manager = EntityManagerFactory.Create(entity, _pump.Object);
             Assert.That(manager.Topic, Is.EqualTo(topic), $"{nameof(manager.Topic)} should be {topic}");
-            _pump.Verify(x => x.Subscribe(topic, manager), $"{topic} should be passed to pump as topic");
+            _pump.Verify(x => x.Connect(topic, manager), $"{topic} should be passed to pump as topic");
         }
         
         [Test]
@@ -62,7 +62,7 @@ namespace Pof.Tests
             var topic = entity.GetType().GetProperty(idPropertyName)?.GetValue(entity)?.ToString() ?? string.Empty; 
             var manager = EntityManagerFactory.Create(entity, idPropertyName, _pump.Object);
             Assert.That(manager.Topic, Is.EqualTo(topic), $"{nameof(manager.Topic)} should be {topic}");
-            _pump.Verify(x => x.Subscribe(topic, manager), $"{topic} should be passed to pump as topic");
+            _pump.Verify(x => x.Connect(topic, manager), $"{topic} should be passed to pump as topic");
         }
 
         [Test]

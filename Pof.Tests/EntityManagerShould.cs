@@ -132,7 +132,7 @@ namespace Pof.Tests
         {
             var manager = CreateTestEntityManager();
             var topic = _testEntity.Id.ToString();
-            _pump.Verify(x => x.Subscribe(topic, manager), Times.Once);
+            _pump.Verify(x => x.Connect(topic, manager), Times.Once);
         }
         
         #endregion    
