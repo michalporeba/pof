@@ -43,6 +43,20 @@ It might be necessary for some part of the domain specific classes to be aware o
 
 *This repository is attempt at trying to see if there is another way, one that would allow to have a library that allows to add historical modelling to any existing codebase as an extra, rather than as an architectural principle.*
 
+## Entity and Historical Models
+
+In the proposed solution the entity doesn't need to handle or emit messages. In fact, it shouldn't to avoid dependencies on the historical model concepts, and the need to modify entities of the existing models. This complicates the lifecycle and property synchronisation of the entity. 
+
+### Synchronising two objects locally
+
+The `ViewModel` should instantiate an `Entity` and a `Manager` for that `Entity`. The `Entity` is then attached to the `Manager`, and through it to the _plumbing_ via `IMessagePump` implementation. 
+
+Unless other actions are performed, the `Manager` should assume the entity to be in a default, or template state and don't emit any messages yet. But it should request any local or remote historical model for the topic chosen.
+
+A template object can be _saved_ which should generate messages for all managed properties and from now on the conflicts should be resolved, but until this happens, any incoming messages from local or remote storage should freely override curent property values. 
+
+Manager should maintain lifecycle of an Entity, from a default, to local and remote synchronised. Further it should be possible to pause, or detect problems with remote synchronisation and perhaps have an keep-alive type of a message, to help inform the user about how many synchronised objects are active, but that will be a more advanced feature considered more later. 
+
 ## Initial Requirements
 
 1. Entity objects should not depend on any framework.
@@ -53,3 +67,7 @@ It might be necessary for some part of the domain specific classes to be aware o
 
 * Automatic conflict resolution
 * Selective property attechment
+* Materialising and potentially storing entities as both historical, and more classical domain model. 
+* A sideeffect of synchronising matching properties between different Entities if they subscribe to the same topic
+
+
