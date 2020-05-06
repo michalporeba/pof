@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Pof
+﻿namespace Pof
 {
     public interface IMessageHandler
     {

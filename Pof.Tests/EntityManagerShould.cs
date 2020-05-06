@@ -133,7 +133,7 @@ namespace Pof.Tests
         
         #region "Emiting messages"
 
-        [Test, Ignore("WIP")]
+        [Test]
         public void emit_messages_for_all_properties_on_first_commit()
         {
             var manager = CreateTestEntityManager();
@@ -142,14 +142,12 @@ namespace Pof.Tests
             manager.Entity.StringProperty = "hello there";
             manager.Commit();
 
-            Assert.That(_messagesSentToThePump.Count, Is.EqualTo(3), "There should be exactly 3 messages");
+            Assert.That(_messagesSentToThePump.Count, Is.EqualTo(2), "There should be exactly 2 messages");
             
-            var idMessage = GetPumpMessageFor(nameof(manager.Entity.Id));
             var integerMessage = GetPumpMessageFor(nameof(manager.Entity.IntegerProperty));
             var stringMessage = GetPumpMessageFor(nameof(manager.Entity.StringProperty));
 
-            Assert.That(idMessage.Value, Is.EqualTo(manager.Entity.Id.ToString()), nameof(manager.Entity.Id));
-            Assert.That(integerMessage.Value, Is.EqualTo(manager.Entity.IntegerProperty.ToString()), nameof(manager.Entity.IntegerProperty));
+            Assert.That(integerMessage.Value, Is.EqualTo(manager.Entity.IntegerProperty), nameof(manager.Entity.IntegerProperty));
             Assert.That(stringMessage.Value, Is.EqualTo(manager.Entity.StringProperty), nameof(manager.Entity.StringProperty));
         }
         

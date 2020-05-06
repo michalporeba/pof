@@ -21,13 +21,18 @@ namespace Pof
             Entity = entity;
             Topic = topic;
 
-            foreach (var property in entity.GetType().GetProperties(BindingFlags.Public))
+            foreach (var property in GetManagedProperties())
                 _handlers.Add(property.Name, new PropertyHandler(Entity, property.Name));   
         }
 
         public void Commit()
         {
-            throw new NotImplementedException();
+            foreach (var handler in _handlers.Values)
+            {
+                handler.Commit();
+                while(handler.HasMessagesInQueue())
+                    _messagePump?.Push(Topic, handler.GetNextMessage());
+            }
         }
         
         public void Connect(IMessagePump messagePump)
@@ -47,5 +52,8 @@ namespace Pof
         {
             return _handlers.Any(x => x.Value.HasConflicts());
         }
+
+        private IEnumerable<PropertyInfo> GetManagedProperties()
+            => Entity.GetType().GetProperties().Where(p => p.CanRead && p.CanWrite);
     }
 }

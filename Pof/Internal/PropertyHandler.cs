@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Pof.Internal
@@ -7,15 +8,19 @@ namespace Pof.Internal
     {
         private readonly object _object;
         private readonly PropertyInfo _property;
-        private readonly object? _initialValue;
         private readonly List<Candidate> _candidates = new List<Candidate>();
         private readonly List<string> _predecessors = new List<string>();
+        private readonly Queue<Message> _outgoingQueue = new Queue<Message>();
 
         public PropertyHandler(object obj, string propertyName)
         {
             _object = obj;
             _property = _object.GetType().GetProperty(propertyName);
-            _initialValue = _property.GetValue(_object);
+        }
+
+        public void Commit()
+        {
+            SetTo(_property.GetValue(_object));
         }
         
         public void HandleMessage(Message message)
@@ -31,6 +36,21 @@ namespace Pof.Internal
             _predecessors.AddRange(message.Predecessors);
         }
 
+        public void SetTo(object? value)
+        {
+            var message = new Message(
+                _property.Name,
+                _candidates.Select(c => c.MessageHash).ToArray(),
+                value);
+            
+            _outgoingQueue.Enqueue(message);
+            HandleMessage(message);
+        }
+
+        public bool HasMessagesInQueue() => _outgoingQueue.Count > 0;
+
+        public Message GetNextMessage() => _outgoingQueue.Dequeue();
+        
         public bool HasConflicts() =>  _candidates.Count > 1;
     }
 }
