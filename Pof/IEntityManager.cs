@@ -3,8 +3,11 @@
     public interface IEntityManager<out TEntity>
         : IMessageHandler
     {
-        void Connect(IMessagePump messagePump);
         TEntity Entity { get; }
         string Topic { get; }
+        
+        void Connect(IMessagePump messagePump);
+        void Commit();
+
     }
 }

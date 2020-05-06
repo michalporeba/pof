@@ -7,6 +7,7 @@ namespace Pof.Internal
     {
         private readonly object _object;
         private readonly PropertyInfo _property;
+        private readonly object? _initialValue;
         private readonly List<Candidate> _candidates = new List<Candidate>();
         private readonly List<string> _predecessors = new List<string>();
 
@@ -14,6 +15,7 @@ namespace Pof.Internal
         {
             _object = obj;
             _property = _object.GetType().GetProperty(propertyName);
+            _initialValue = _property.GetValue(_object);
         }
         
         public void HandleMessage(Message message)

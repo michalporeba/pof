@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -10,6 +11,7 @@ namespace Pof.Tests
     {
         private TestEntity _testEntity = new TestEntity();
         private Mock<IMessagePump> _pump = new Mock<IMessagePump>();
+        private readonly List<Message> _messagesSentToThePump = new List<Message>();
 
         [SetUp]
         public void Setup()
@@ -130,18 +132,44 @@ namespace Pof.Tests
         #endregion
         
         #region "Emiting messages"
-        
-        [Test]
-        
-        // Push() // Commit() // Confirm()
-        // Pause()
-        // Resume()
+
+        [Test, Ignore("WIP")]
+        public void emit_messages_for_all_properties_on_first_commit()
+        {
+            var manager = CreateTestEntityManager();
+            SetCallbackOnPumpFor(manager.Topic);
+            manager.Entity.IntegerProperty = 99;
+            manager.Entity.StringProperty = "hello there";
+            manager.Commit();
+
+            Assert.That(_messagesSentToThePump.Count, Is.EqualTo(3), "There should be exactly 3 messages");
+            
+            var idMessage = GetPumpMessageFor(nameof(manager.Entity.Id));
+            var integerMessage = GetPumpMessageFor(nameof(manager.Entity.IntegerProperty));
+            var stringMessage = GetPumpMessageFor(nameof(manager.Entity.StringProperty));
+
+            Assert.That(idMessage.Value, Is.EqualTo(manager.Entity.Id.ToString()), nameof(manager.Entity.Id));
+            Assert.That(integerMessage.Value, Is.EqualTo(manager.Entity.IntegerProperty.ToString()), nameof(manager.Entity.IntegerProperty));
+            Assert.That(stringMessage.Value, Is.EqualTo(manager.Entity.StringProperty), nameof(manager.Entity.StringProperty));
+        }
         
         #endregion 
         
         #region "Pump Interactions"
 
-        #endregion    
+        #endregion
+
+        private void SetCallbackOnPumpFor(string topic)
+        {
+            _messagesSentToThePump.Clear();
+            _pump.Setup(x => x.Push(topic, It.IsAny<Message>()))
+                .Callback<string, Message>((t, m) => { _messagesSentToThePump.Add(m); });
+        }
+
+        private Message GetPumpMessageFor(string propertyName)
+        {
+            return _messagesSentToThePump.FirstOrDefault(m => m.PropertyName == propertyName);
+        }
         
         private static void SetProperty(object target, string property, object value)
         {
