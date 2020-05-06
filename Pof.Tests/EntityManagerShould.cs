@@ -151,6 +151,42 @@ namespace Pof.Tests
             Assert.That(stringMessage.Value, Is.EqualTo(manager.Entity.StringProperty), nameof(manager.Entity.StringProperty));
         }
         
+        [Test]
+        public void emit_no_messages_for_consecutive_commits_with_no_changes_between()
+        {
+            var manager = CreateTestEntityManager();
+            SetCallbackOnPumpFor(manager.Topic);
+            manager.Entity.IntegerProperty = 111;
+            manager.Entity.StringProperty = "some text";
+            manager.Commit();
+            _messagesSentToThePump.Clear();
+            manager.Commit();
+            
+            Assert.That(_messagesSentToThePump.Count, Is.EqualTo(0), "There should be no messages");
+        }
+
+        [Test]
+        public void emit_messages_for_changes_between_commits()
+        {
+            var manager = CreateTestEntityManager();
+            manager.Commit();
+
+            SetCallbackOnPumpFor(manager.Topic);
+            Assert.That(_messagesSentToThePump, Is.Empty);
+            
+            manager.Entity.IntegerProperty = 17;
+            manager.Entity.StringProperty = "later changes";
+            manager.Commit();
+
+            Assert.That(_messagesSentToThePump.Count, Is.EqualTo(2), "There should be exactly 2 messages");
+            
+            var integerMessage = GetPumpMessageFor(nameof(manager.Entity.IntegerProperty));
+            var stringMessage = GetPumpMessageFor(nameof(manager.Entity.StringProperty));
+
+            Assert.That(integerMessage.Value, Is.EqualTo(manager.Entity.IntegerProperty), nameof(manager.Entity.IntegerProperty));
+            Assert.That(stringMessage.Value, Is.EqualTo(manager.Entity.StringProperty), nameof(manager.Entity.StringProperty));            
+        }
+        
         #endregion 
         
         #region "Pump Interactions"
@@ -167,11 +203,6 @@ namespace Pof.Tests
         private Message GetPumpMessageFor(string propertyName)
         {
             return _messagesSentToThePump.FirstOrDefault(m => m.PropertyName == propertyName);
-        }
-        
-        private static void SetProperty(object target, string property, object value)
-        {
-            target.GetType().GetProperty(property)?.SetValue(target, value);
         }
 
         private IEntityManager<TestEntity> CreateTestEntityManager()

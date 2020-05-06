@@ -11,6 +11,7 @@ namespace Pof.Internal
         private readonly List<Candidate> _candidates = new List<Candidate>();
         private readonly List<string> _predecessors = new List<string>();
         private readonly Queue<Message> _outgoingQueue = new Queue<Message>();
+        private bool _isDraft = true;
 
         public PropertyHandler(object obj, string propertyName)
         {
@@ -20,9 +21,18 @@ namespace Pof.Internal
 
         public void Commit()
         {
-            SetTo(_property.GetValue(_object));
+            var currentValue = _property.GetValue(_object);
+            var isChanged = _candidates.Any(
+                c => c.Value == null && currentValue == null 
+                     || currentValue != null && !currentValue.Equals(c.Value)
+                     );
+            
+            if (isChanged || _isDraft)
+                SetTo(currentValue);
+
+            _isDraft = false;
         }
-        
+
         public void HandleMessage(Message message)
         {
             if (!_predecessors.Contains(message.Hash))
@@ -36,7 +46,13 @@ namespace Pof.Internal
             _predecessors.AddRange(message.Predecessors);
         }
 
-        public void SetTo(object? value)
+        public bool HasMessagesInQueue() => _outgoingQueue.Count > 0;
+
+        public Message GetNextMessage() => _outgoingQueue.Dequeue();
+        
+        public bool HasConflicts() =>  _candidates.Count > 1;
+        
+        private void SetTo(object? value)
         {
             var message = new Message(
                 _property.Name,
@@ -46,11 +62,5 @@ namespace Pof.Internal
             _outgoingQueue.Enqueue(message);
             HandleMessage(message);
         }
-
-        public bool HasMessagesInQueue() => _outgoingQueue.Count > 0;
-
-        public Message GetNextMessage() => _outgoingQueue.Dequeue();
-        
-        public bool HasConflicts() =>  _candidates.Count > 1;
     }
 }

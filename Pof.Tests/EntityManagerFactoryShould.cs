@@ -58,7 +58,7 @@ namespace Pof.Tests
             object entity
         )
         {
-            var idPropertyName = nameof(AnotherKeyEntity<object>.AlternativeId);
+            const string idPropertyName = nameof(AnotherKeyEntity<object>.AlternativeId);
             var topic = entity.GetType().GetProperty(idPropertyName)?.GetValue(entity)?.ToString() ?? string.Empty; 
             var manager = EntityManagerFactory.Create(entity, idPropertyName, _pump.Object);
             Assert.That(manager.Topic, Is.EqualTo(topic), $"{nameof(manager.Topic)} should be {topic}");
@@ -98,16 +98,16 @@ namespace Pof.Tests
 
         private static IEnumerable<object> ObjectsWithRegularId => new[]
         {
-            (object)new RegularIdEntity<Guid>() { Id = Guid.NewGuid() },
-            new RegularIdEntity<int>() { Id = 17 }, 
-            new RegularIdEntity<string>() { Id = "hello" }, 
+            (object)new RegularIdEntity<Guid> { Id = Guid.NewGuid() },
+            new RegularIdEntity<int> { Id = 17 },
+            new RegularIdEntity<string> { Id = "hello" }
         };
         
         private static IEnumerable<object> ObjectsWithAlternativeId => new[]
         {
-            (object)new AnotherKeyEntity<Guid>() { AlternativeId = Guid.NewGuid() },
-            new AnotherKeyEntity<int>() { AlternativeId = 23 }, 
-            new AnotherKeyEntity<string>() { AlternativeId = "abc123" }, 
+            (object)new AnotherKeyEntity<Guid> { AlternativeId = Guid.NewGuid() },
+            new AnotherKeyEntity<int> { AlternativeId = 23 }, 
+            new AnotherKeyEntity<string> { AlternativeId = "abc123" }
         };
 
         private class NoIdEntity
