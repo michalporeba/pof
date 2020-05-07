@@ -37,9 +37,9 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test .\Pof.Tests\Pof.Tests.csproj  /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+      run: dotnet test ./Pof.Tests/Pof.Tests.csproj  /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
     - name: codecov
-    - uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v1
       with:
         file: ./coverage.opencover.xml # optional
         flags: unittests # optional
