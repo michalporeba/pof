@@ -21,5 +21,29 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
+      
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test .\Pof.Tests\Pof.Tests.csproj  /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - name: codecov
+    - uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.opencover.xml # optional
+        flags: unittests # optional
+        name: PoF # optional
+        fail_ci_if_error: true # optional (default = false)
+      
+        
