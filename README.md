@@ -1,3 +1,5 @@
+![.NET Core](https://github.com/michalporeba/pof/workflows/.NET%20Core/badge.svg)
+
 # Partially Ordered Facts
 
 The Partially Ordered Facts or (PoF) library is an attempt at implementing the Historical Modelling idea while following principles of clean architecture, especially the need to keep any frameworks at arms length. 
