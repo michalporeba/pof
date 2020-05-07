@@ -29,8 +29,9 @@ namespace Pof
             foreach (var handler in _handlers.Values)
             {
                 handler.Commit();
-                while(handler.HasMessagesInQueue())
-                    _messagePump?.Push(Topic, handler.GetNextMessage());
+                var newMessages = handler.GetMessages();
+                foreach (var message in newMessages)
+                    _messagePump?.Push(Topic, message);
             }
         }
         

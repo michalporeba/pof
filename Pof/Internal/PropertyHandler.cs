@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 
@@ -8,15 +9,18 @@ namespace Pof.Internal
     {
         private readonly object _object;
         private readonly PropertyInfo _property;
-        private readonly List<Candidate> _candidates = new List<Candidate>();
-        private readonly List<string> _predecessors = new List<string>();
-        private readonly Queue<Message> _outgoingQueue = new Queue<Message>();
+        private ImmutableList<Candidate> _candidates;
+        private ImmutableList<string> _predecessors;
+        private ImmutableQueue<Message> _outgoingQueue;
         private bool _isDraft = true;
 
         public PropertyHandler(object obj, string propertyName)
         {
             _object = obj;
             _property = _object.GetType().GetProperty(propertyName);
+            _candidates = ImmutableList<Candidate>.Empty;
+            _predecessors = ImmutableList<string>.Empty;
+            _outgoingQueue = ImmutableQueue<Message>.Empty;
         }
 
         public void Commit()
@@ -37,19 +41,23 @@ namespace Pof.Internal
         {
             if (!_predecessors.Contains(message.Hash))
             {
-                _candidates.Add(new Candidate(message.Hash, message.Value));
+                _candidates = _candidates.Add(new Candidate(message.Hash, message.Value));
                 _property.SetValue(_object, message.Value);
             }
 
             var newPredecessors = message.Predecessors.Except(_predecessors);
-            _candidates.RemoveAll(c => newPredecessors.Contains(c.MessageHash));
-            _predecessors.AddRange(message.Predecessors);
+            _candidates = _candidates.RemoveAll(c => newPredecessors.Contains(c.MessageHash));
+            
+            _predecessors = _predecessors.AddRange(message.Predecessors);
         }
 
-        public bool HasMessagesInQueue() => _outgoingQueue.Count > 0;
+        public IEnumerable<Message> GetMessages()
+        {
+            var output = _outgoingQueue.ToImmutableArray();
+            _outgoingQueue = _outgoingQueue.Clear();
+            return output;
+        }
 
-        public Message GetNextMessage() => _outgoingQueue.Dequeue();
-        
         public bool HasConflicts() =>  _candidates.Count > 1;
         
         private void SetTo(object? value)
@@ -59,7 +67,7 @@ namespace Pof.Internal
                 _candidates.Select(c => c.MessageHash).ToArray(),
                 value);
             
-            _outgoingQueue.Enqueue(message);
+            _outgoingQueue = _outgoingQueue.Enqueue(message);
             HandleMessage(message);
         }
     }
