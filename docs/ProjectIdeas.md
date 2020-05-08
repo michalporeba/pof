@@ -8,7 +8,7 @@ Having multiple people express opinion on a particular subject to assess risk, v
 
 ## Inventory / Stock management
 
-A stock inventory presents a number of challanges. Frequently they are taken in places with intermittent network connectivity, and potentially by multiple people at the same time. There is some potential for automated conflict resolution with things being counted mulitple times, perhaps with different values. See the [detail description](./docs/DemoProject.md) of the demo problem and projcet. 
+A stock inventory presents a number of challanges. Frequently they are taken in places with intermittent network connectivity, and potentially by multiple people at the same time. There is some potential for automated conflict resolution with things being counted mulitple times, perhaps with different values. See the [detail description](./DemoProject.md) of the demo problem and projcet. 
 
 ## Shopping Basket
 

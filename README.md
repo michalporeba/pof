@@ -46,7 +46,7 @@ In the above, proposed implementation the key element provided by the library is
 
 ![Proposed Implementation Improvements](./docs/Diagrams/ProposedImplementationImpact.png)
 
-As shown above none of the domain specific classes (`Entity` or `ViewModel`) have any dependency on any aspect of historical modelling, which is used behind the scenes to manage the object synchronisation between devices. 
+As shown above none of the domain specific entities have any dependency on any part of historical modelling and only the view model, or any other application layer needs to be aware of the `Manager` implementation. It could be possible to make everything but the manager to an internal type. 
 
 It might be necessary for some part of the domain specific classes to be aware of the historical modelling concepts to manage conflicts, but it might also be possible to implement some sort of automatic conflict resolution, but this architecture should allow to add benefits of historical modelling to an existing system regardless of how it is implemented right now. 
 
