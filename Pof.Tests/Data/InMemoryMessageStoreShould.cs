@@ -55,6 +55,25 @@ namespace Pof.Tests.Data
             Assert.That(topic2Messages.Any(m => m.Hash == message3.Hash), Is.True, "Message 3 should be in topic 2");
         }
 
+        [Test]
+        public void return_empty_list_from_non_existing_topic()
+        {
+            var topic = Guid.NewGuid().ToString();
+            var messages = _store.GetAllFromTopic(topic);
+            Assert.That(messages, Is.Empty);
+        }
+
+        [Test]
+        public void check_if_message_exists()
+        {
+            var topic = Guid.NewGuid().ToString();
+            var message = CreateTestMessage();
+
+            Assert.That(_store.Contains(topic, message), Is.False, "Should not exist before saving");
+            _store.Save(topic, message);
+            Assert.That(_store.Contains(topic, message), Is.True, "Should exist once it was saved");
+        }
+
         private Message CreateTestMessage()
         {
             var propertyName = Guid.NewGuid().ToString().Substring(0, 8);
