@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Pof.Internal
 {
-    internal class PropertyHandler : IMessageHandler
+    internal class PropertyHandler
     {
         private readonly object _object;
         private readonly PropertyInfo _property;

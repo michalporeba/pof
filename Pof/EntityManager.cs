@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Pof.Internal;
@@ -11,7 +12,8 @@ namespace Pof
     {
         private IMessagePump? _messagePump;
         private readonly Dictionary<string, PropertyHandler> _handlers = new Dictionary<string, PropertyHandler>();
-        
+
+        public Guid Id { get; } = Guid.NewGuid();
         public TEntity Entity { get; }
         public string Topic { get; }
 

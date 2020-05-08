@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using Pof.Data;
+﻿using Pof.Data;
 
 namespace Pof
 {
     public class MessagePump : IMessagePump
     {
         private readonly IMessageStore _store;
-        private Dictionary<string, List<IMessageHandler>> _handlers = new Dictionary<string, List<IMessageHandler>>();
+        private readonly MessageDispatcher _dispatcher = new MessageDispatcher();
         
         public MessagePump(IMessageStore store)
         {
@@ -15,19 +14,13 @@ namespace Pof
         
         public void Connect(string topic, IMessageHandler handler)
         {
-            if (!_handlers.ContainsKey(topic))
-                _handlers.Add(topic, new List<IMessageHandler>());
-            
-            _handlers[topic].Add(handler);
+            _dispatcher.Subscribe(handler, topic);
         }
 
         public void Push(string topic, Message message)
         {
             _store.Save(topic, message);
-            if (!_handlers.ContainsKey(topic)) return;
-            
-            foreach(var handler in _handlers[topic])
-                handler.HandleMessage(message);
+            _dispatcher.Dispatch(topic, message);
         }
     }
 }

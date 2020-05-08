@@ -13,7 +13,7 @@ namespace Pof
                 throw new InvalidOperationException("Entity has no ID and topic is not provided.");
             }
 
-            return Create<TEntity>(entity, messagePump, idProperty.GetValue(entity).ToString());
+            return Create(entity, messagePump, idProperty.GetValue(entity).ToString());
         }
         
         public static EntityManager<TEntity> Create<TEntity>(TEntity entity, IMessagePump pump, string topic)

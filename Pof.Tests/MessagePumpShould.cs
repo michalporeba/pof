@@ -1,5 +1,4 @@
 ﻿using System;
-using Moq;
 using NUnit.Framework;
 using Pof.Data;
 
@@ -39,13 +38,12 @@ namespace Pof.Tests
             Assert.That(manager3.Entity.Name, Is.EqualTo(testValue), nameof(manager3));
         }
         
-        
         private IMessagePump CreateTestPump()
             => new MessagePump(_messageStore);
         
         private class TestEntity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = Guid.NewGuid().ToString();
         }
     }
 }
