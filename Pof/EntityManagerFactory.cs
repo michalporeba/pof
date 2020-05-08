@@ -37,7 +37,7 @@ namespace Pof
                              ?? throw new ArgumentOutOfRangeException(nameof(idPropertyName),
                                  $"Property {idPropertyName} does not exist on {entity.GetType()}");
             var topic = idProperty.GetValue(entity).ToString();
-            return Create<TEntity>(entity, pump, topic);
+            return Create(entity, pump, topic);
         }
     }
 }
