@@ -1,45 +1,50 @@
 ![.NET Core](https://github.com/michalporeba/pof/workflows/.NET%20Core/badge.svg)
-
 [![codecov](https://codecov.io/gh/michalporeba/pof/branch/master/graph/badge.svg)](https://codecov.io/gh/michalporeba/pof)
 
 # Partially Ordered Facts
 
-The Partially Ordered Facts or (PoF) library is an attempt at implementing the Historical Modelling idea while following principles of clean architecture, especially the need to keep any frameworks at arms length. 
+The Partially Ordered Facts (better name is needed) library is an attempt at implementing the Historical Modelling idea while following principles of clean architecture, especially the need to keep any frameworks at arms length. 
 
 ## Introduction
 
-### Historical Modelling
+### The Concept
 
-I have first heared about from a Pluralsight course [Occasionally Connected Windows Mobile Apps: Collaboration](https://www.pluralsight.com/courses/occasionally-connected-windows-mobile-apps-collaboration) by [Michael L. Perry](https://github.com/michaellperry) and still after 5 years since that course is a very good introduction to the concept, despite the fact that is shown on an example of Windows Phone 7 application. 
+I have first heared about Historical Modelling from a Pluralsight course [Occasionally Connected Windows Mobile Apps: Collaboration](https://www.pluralsight.com/courses/occasionally-connected-windows-mobile-apps-collaboration) by [Michael L. Perry](https://github.com/michaellperry) and still after 5 years since that course is a very good introduction to the concept, despite the fact that is shown on an example of Windows Phone 7 application. 
 
 As explained by the author on [Modeling.com](https://modeling.com) Historical Modelling "is based on a model of software behavior as a graph of partially ordered facts". Unlike with distributed event sourcing system where the messages have to ordered historical modelling requires only partial ordering. 
 
-### Original Implementations
+### Practical Application
+
+Historical modelling with only partially ordered facts is an appealing concept for distributed applications where the users or their devices are only occasionally connected and where they concurrently work on the same documents or data structures. Things like google docs, office 365 are obvious examples of application allowing such collaboration, and concurrent co-editing of documents. But simpler applications could benefit from this type of functionality too. 
+
+See the [Project Ideas](./docs/ProjectIdeas.md) for more details about what sort of problems could be solved with this library and for the details of a planned demo / reference project. 
+
+## Original Implementations
 
 Original implementations can be found in a number of Michael's projects [Jinaga](https://github.com/michaellperry/jinaga), [Correspondence](http://correspondencecloud.com/) and [Mathematicians](https://github.com/michaellperry/Mathematicians) which he calls a 'reference implementation'.
 
 There is plenty information in the links provided above to look at the details of the original implementations, but for the purpose of discussing proposed improvements here is a view at some key elements and their dependencies. 
 
-![Reference Implementation](./Diagrams/ReferenceImplementationModel.png)
+![Reference Implementation](./docs/Diagrams/ReferenceImplementationModel.png)
 
 The `Message` object is all present. Any entity modelled (`Entity` on the diagram) has to implement `IMessageHandler` and cannot directly modify its own state, but rather to perform an action (e.g. `Action1`) it has to create a message which then in the `ViewModel` it is passed to the `Application` object, which in turn _emits_ the message which eventually arives back to the `Entity` updating its state. To support more complex entities each root entity has to hold a reference to a `MessageDispatcher`. 
 
 Most of the elements necessary to make it work can be delivered by library, but it doesn't change the fact that specific project elements including the `ViewModel`, `Application` and `Entity` all have to be aware of and excluding the `ViewModel` depend on the historical modelling components. Entities have to be `IMessageHandlers` and be able to create `Message` instances while the application components are responsible for the orchestration of the `Message` exchanges. 
 
-![Reference Implementation Issues](./Diagrams/ReferenceImplementationIssues.png)
+![Reference Implementation Issues](./docs/Diagrams/ReferenceImplementationIssues.png)
 
 Above: Domain specific components which unnecessarily depend on historical modelling concepts and components. 
 
 
-### Another Approach
+## Another Approach
 
 While the concept is very interesting and has been at the back of my mind for the last 5 years, every time I attempted to do somethinig with it very quickly I got discurrage by how invasive this approach is. It never found a way to simply add it to an existing project, without changing much more than I would want to. 
 
-![Proposed Implementation](./Diagrams/ProposedImplementationModel.png)
+![Proposed Implementation](./docs/Diagrams/ProposedImplementationModel.png)
 
 In the above, proposed implementation the key element provided by the library is an entity `Manager` which is an implementation of `IMessageHandler` and has dependencies on `Message` and `IMessagePump` but doesn't need to know anything about the `Entity` as reflection is used to manage an entity. 
 
-![Proposed Implementation Improvements](./Diagrams/ProposedImplementationImpact.png)
+![Proposed Implementation Improvements](./docs/Diagrams/ProposedImplementationImpact.png)
 
 As shown above none of the domain specific classes (`Entity` or `ViewModel`) have any dependency on any aspect of historical modelling, which is used behind the scenes to manage the object synchronisation between devices. 
 
@@ -61,17 +66,14 @@ A template object can be _saved_ which should generate messages for all managed 
 
 Manager should maintain lifecycle of an Entity, from a default, to local and remote synchronised. Further it should be possible to pause, or detect problems with remote synchronisation and perhaps have an keep-alive type of a message, to help inform the user about how many synchronised objects are active, but that will be a more advanced feature considered more later. 
 
-## Initial Requirements
+## Further Reading
 
-1. Entity objects should not depend on any framework.
-2. It should be possible to add historical modelling like synchronisation to existing application with minimal disruption. 
-3. Where possible strong typing should be chosen over dynamic / expando objects.
+### Historical Modelling
 
-## Things to consider
+### This Project
 
-* Automatic conflict resolution
-* Selective property attechment
-* Materialising and potentially storing entities as both historical, and more classical domain model. 
-* A sideeffect of synchronising matching properties between different Entities if they subscribe to the same topic
+ * [Requirements](./docs/Requirements.md)
+ * [Other](./docs/Other.md)
+
 
 
