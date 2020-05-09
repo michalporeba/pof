@@ -1,7 +1,6 @@
 ﻿using System;
 using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
 using Pof.Data;
 
 namespace Pof.Tests

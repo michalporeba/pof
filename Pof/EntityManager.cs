@@ -6,6 +6,11 @@ using Pof.Internal;
 
 namespace Pof
 {
+    /// <summary>
+    /// Manager of entities responsible for connecting
+    /// the entity to the wider system.
+    /// </summary>
+    /// <typeparam name="TEntity">Type of the entity to be managed</typeparam>
     public class EntityManager<TEntity>
         : IEntityManager<TEntity>
         where TEntity : notnull
@@ -13,10 +18,24 @@ namespace Pof
         private IMessagePump? _messagePump;
         private readonly Dictionary<string, PropertyHandler> _handlers = new Dictionary<string, PropertyHandler>();
 
+        /// <inheritdoc cref="IMessageHandler"/>
         public Guid Id { get; } = Guid.NewGuid();
+        
+        /// <summary>
+        /// The managed entity
+        /// </summary>
         public TEntity Entity { get; }
+        
+        /// <summary>
+        /// Topic to which the manager (and the Entity) are subscribed
+        /// </summary>
         public string Topic { get; }
 
+        /// <summary>
+        /// Create an instance of EntityManager
+        /// </summary>
+        /// <param name="entity">Entity instance to be managed</param>
+        /// <param name="topic">Topic to which the entity belongs</param>
         internal EntityManager(TEntity entity, string topic)
         {
             Entity = entity;
@@ -26,6 +45,7 @@ namespace Pof
                 _handlers.Add(property.Name, new PropertyHandler(Entity, property.Name));   
         }
 
+        
         public void Commit()
         {
             foreach (var handler in _handlers.Values)
@@ -42,6 +62,7 @@ namespace Pof
             _messagePump = messagePump;
         }
         
+        /// <inheritdoc cref="IMessageHandler"/>
         public void HandleMessage(Message message)
         {
             if (!_handlers.ContainsKey(message.PropertyName))
@@ -50,6 +71,7 @@ namespace Pof
             _handlers[message.PropertyName].HandleMessage(message);
         }
 
+        /// <inheritdoc cref="IMessageHandler"/>
         public bool HasConflicts()
         {
             return _handlers.Any(x => x.Value.HasConflicts());
