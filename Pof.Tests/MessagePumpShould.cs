@@ -1,5 +1,7 @@
 ﻿using System;
+using Moq;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using Pof.Data;
 
 namespace Pof.Tests
@@ -53,6 +55,22 @@ namespace Pof.Tests
 
             var manager2 = EntityManagerFactory.Create(entity2, pump, topic);
             Assert.That(entity2.Name, Is.EqualTo(firstName));
+        }
+
+        [Test]
+        public void pass_message_to_other_connected_pumps()
+        {
+            var topic = Guid.NewGuid().ToString();
+            var message = new Message(Guid.NewGuid().ToString(), Guid.NewGuid());
+            var pump = CreateTestPump();
+            var remote1 = new Mock<IMessagePumpClient>();
+            var remote2 = new Mock<IMessagePumpClient>();
+            pump.Connect(remote1.Object);
+            pump.Connect(remote2.Object);
+
+            pump.Push(topic, message);
+            remote1.Verify(x => x.Push(topic, It.IsAny<Message>()), nameof(remote1));
+            remote2.Verify(x => x.Push(topic, It.IsAny<Message>()), nameof(remote2));
         }
         
         private IMessagePump CreateTestPump()
