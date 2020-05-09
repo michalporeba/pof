@@ -15,6 +15,10 @@ namespace Pof
         public void Connect(string topic, IMessageHandler handler)
         {
             _dispatcher.Subscribe(handler, topic);
+            foreach (var message in _store.GetAllFromTopic(topic))
+            {
+                handler.HandleMessage(message);
+            }
         }
 
         public void Push(string topic, Message message)

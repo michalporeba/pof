@@ -37,6 +37,23 @@ namespace Pof.Tests
             Assert.That(manager2.Entity.Name, Is.EqualTo(testValue), nameof(manager2));
             Assert.That(manager3.Entity.Name, Is.EqualTo(testValue), nameof(manager3));
         }
+
+        [Test]
+        public void send_all_existing_messages_for_a_topic_to_a_new_local_handler()
+        {
+            var pump = CreateTestPump();
+            var topic = Guid.NewGuid().ToString();
+            var entity1 = new TestEntity();
+            var firstName = entity1.Name;
+            var manager1 = EntityManagerFactory.Create(entity1, pump, topic);
+            manager1.Commit();
+            
+            var entity2 = new TestEntity();
+            Assume.That(entity2.Name, Is.Not.EqualTo(firstName));
+
+            var manager2 = EntityManagerFactory.Create(entity2, pump, topic);
+            Assert.That(entity2.Name, Is.EqualTo(firstName));
+        }
         
         private IMessagePump CreateTestPump()
             => new MessagePump(_messageStore);
