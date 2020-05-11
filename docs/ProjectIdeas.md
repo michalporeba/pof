@@ -18,4 +18,6 @@ A shared session between multiple people sharing a single shopping backet. Anybo
 
 This was implemented in the Pluralsight course as the demo. A simply kanban like board that allows to create tasks and move them between a few different columns indicating their state. The cards can be managed on any of the connected devices regardless if they are on or off-line. It can lead to conflicts as the card can be moved in different directions, or edited concurrently. The conflicts then are identified and the user can resolve them by choosing one from the candidate states. 
 
- 
+## Vending Machines
+
+If a set of vending machines has to manage shared inventory when not always connected to wider network.
