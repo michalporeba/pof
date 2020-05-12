@@ -205,7 +205,7 @@ namespace Pof.Tests
             return _messagesSentToThePump.FirstOrDefault(m => m.PropertyName == propertyName);
         }
 
-        private IEntityManager<TestEntity> CreateTestEntityManager()
+        private EntityManager<TestEntity> CreateTestEntityManager()
         {
             return EntityManagerFactory.Create(_testEntity, _pump.Object);
         }

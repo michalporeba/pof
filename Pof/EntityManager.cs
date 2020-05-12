@@ -12,7 +12,7 @@ namespace Pof
     /// </summary>
     /// <typeparam name="TEntity">Type of the entity to be managed</typeparam>
     public class EntityManager<TEntity>
-        : IEntityManager<TEntity>
+        : IMessageHandler
         where TEntity : notnull
     {
         private IMessagePump? _messagePump;
