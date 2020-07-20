@@ -14,7 +14,7 @@ namespace Pof.Tests
         {
             var pump = CreateTestPump();
             var topic = Guid.NewGuid().ToString();
-            var message = new Message();
+            var message = new Message("test", "test");
             pump.Push(topic, message);
 
             Assert.That(_messageStore.Contains(topic, message));

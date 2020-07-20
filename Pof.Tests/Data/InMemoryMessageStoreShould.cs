@@ -16,7 +16,7 @@ namespace Pof.Tests.Data
             var message = CreateTestMessage();
             _store.Save(topic, message);
             var copy = _store.GetAllFromTopic(topic).First();
-            Assert.That(copy.Hash, Is.EqualTo(message.Hash));
+            Assert.That(copy.Equals(message), Is.True);
         }
 
         [Test]
@@ -50,9 +50,9 @@ namespace Pof.Tests.Data
             Assert.That(topic1Messages.Count, Is.EqualTo(2), "There should be exactly 2 messages in topic 1");
             Assert.That(topic1Messages.Count, Is.EqualTo(2), "There should be exactly 1 message in topic 2");
 
-            Assert.That(topic1Messages.Any(m => m.Hash == message1.Hash), Is.True, "Message 1 should be in topic 1");
-            Assert.That(topic1Messages.Any(m => m.Hash == message2.Hash), Is.True, "Message 2 should be in topic 1");
-            Assert.That(topic2Messages.Any(m => m.Hash == message3.Hash), Is.True, "Message 3 should be in topic 2");
+            Assert.That(topic1Messages.Any(m => m.Equals(message1)), Is.True, "Message 1 should be in topic 1");
+            Assert.That(topic1Messages.Any(m => m.Equals(message2)), Is.True, "Message 2 should be in topic 1");
+            Assert.That(topic2Messages.Any(m => m.Equals(message3)), Is.True, "Message 3 should be in topic 2");
         }
 
         [Test]

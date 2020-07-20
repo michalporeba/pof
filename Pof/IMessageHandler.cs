@@ -12,12 +12,8 @@ namespace Pof
         /// which can be used to manage subscriptions
         /// </summary>
         Guid Id { get; }
-        
-        /// <summary>
-        /// Handles an incoming message
-        /// </summary>
-        /// <param name="message">The message</param>
-        void HandleMessage(Message message);
+
+        void RouteMessage(Message message, string propertyName);
         
         /// <summary>
         /// Checks if there are any conflicts in the manage entity

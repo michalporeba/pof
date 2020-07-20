@@ -33,7 +33,8 @@ namespace Pof.Tests
         public void update_string_property_from_message([ShortStrings]string value)
         {
             var manager = CreateTestEntityManager();
-            manager.HandleMessage(new Message(nameof(TestEntity.StringProperty), value));
+            var message = new Message(nameof(TestEntity.StringProperty), value);
+            message.ApplyWith(manager);
             Assert.That(manager.Entity.StringProperty, Is.EqualTo(value));
         }
 
@@ -41,7 +42,8 @@ namespace Pof.Tests
         public void update_int_property_from_message([SmallIntegers]int value)
         {
             var manager = CreateTestEntityManager();
-            manager.HandleMessage(new Message(nameof(TestEntity.IntegerProperty), value));
+            var message = new Message(nameof(TestEntity.IntegerProperty), value);
+            message.ApplyWith(manager);
             Assert.That(manager.Entity.IntegerProperty, Is.EqualTo(value));
         }
 
@@ -51,8 +53,10 @@ namespace Pof.Tests
             [SmallIntegers]int integerValue)
         {
             var manager = CreateTestEntityManager();
-            manager.HandleMessage(new Message(nameof(TestEntity.IntegerProperty), integerValue));
-            manager.HandleMessage(new Message(nameof(TestEntity.StringProperty), stringValue));
+            var message1 = new Message(nameof(TestEntity.IntegerProperty), integerValue);
+            var message2 = new Message(nameof(TestEntity.StringProperty), stringValue);
+            message1.ApplyWith(manager);
+            message2.ApplyWith(manager);
 
             Assert.That(manager.Entity.IntegerProperty, Is.EqualTo(integerValue), "Integer Value");
             Assert.That(manager.Entity.StringProperty, Is.EqualTo(stringValue), "String Value");
@@ -69,8 +73,10 @@ namespace Pof.Tests
         public void identify_conflict_if_the_same_property_is_initialised_twice()
         {
             var manager = CreateTestEntityManager();
-            manager.HandleMessage(new Message(nameof(TestEntity.StringProperty), "a"));
-            manager.HandleMessage(new Message(nameof(TestEntity.StringProperty), "b"));
+            var message1 = new Message(nameof(TestEntity.StringProperty), "a");
+            var message2 = new Message(nameof(TestEntity.StringProperty), "b");
+            message1.ApplyWith(manager);
+            message2.ApplyWith(manager);
 
             Assert.That(manager.HasConflicts(), Is.True, "There should be a conflict");
             Assert.That(manager.Entity.StringProperty, Is.EqualTo("b"), "Last value should be 'b'");
@@ -81,12 +87,12 @@ namespace Pof.Tests
         {
             var manager = CreateTestEntityManager();
             var message1 = new Message(nameof(TestEntity.StringProperty), "a");    
-            var message2 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "b");
-            var message3 = new Message(nameof(TestEntity.StringProperty), message2.Hash, "c");
-            
-            manager.HandleMessage(message1);
-            manager.HandleMessage(message2);
-            manager.HandleMessage(message3);
+            var message2 = new Message(nameof(TestEntity.StringProperty), message1, "b");
+            var message3 = new Message(nameof(TestEntity.StringProperty), message2, "c");
+
+            message1.ApplyWith(manager);
+            message2.ApplyWith(manager);
+            message3.ApplyWith(manager);
             
             Assert.That(manager.HasConflicts, Is.False, "There should be no conflicts");
             Assert.That(manager.Entity.StringProperty, Is.EqualTo("c"), "Current value should be 'c'");
@@ -97,12 +103,12 @@ namespace Pof.Tests
         {
             var manager = CreateTestEntityManager();
             var message1 = new Message(nameof(TestEntity.StringProperty), "a");    
-            var message2 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "b");
-            var message3 = new Message(nameof(TestEntity.StringProperty), message2.Hash, "c");
-            
-            manager.HandleMessage(message3);
-            manager.HandleMessage(message2);
-            manager.HandleMessage(message1);
+            var message2 = new Message(nameof(TestEntity.StringProperty), message1, "b");
+            var message3 = new Message(nameof(TestEntity.StringProperty), message2, "c");
+
+            message3.ApplyWith(manager);
+            message2.ApplyWith(manager);
+            message1.ApplyWith(manager);
             
             Assert.That(manager.HasConflicts, Is.False, "There should be no conflicts");
             Assert.That(manager.Entity.StringProperty, Is.EqualTo("c"), "Current value should be 'c'");
@@ -113,17 +119,17 @@ namespace Pof.Tests
         {
             var manager = CreateTestEntityManager();
             var message1 = new Message(nameof(TestEntity.StringProperty), "a");    
-            var message2 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "b");
-            var message3 = new Message(nameof(TestEntity.StringProperty), message1.Hash, "c");
+            var message2 = new Message(nameof(TestEntity.StringProperty), message1, "b");
+            var message3 = new Message(nameof(TestEntity.StringProperty), message1, "c");
             
-            manager.HandleMessage(message1);
-            manager.HandleMessage(message2);
-            manager.HandleMessage(message3);
+            message1.ApplyWith(manager);
+            message2.ApplyWith(manager);
+            message3.ApplyWith(manager);
             
             Assume.That(manager.HasConflicts(), Is.True, "There should be conflict in the setup");
             
-            var message4 = new Message(nameof(TestEntity.StringProperty), new [] { message2.Hash, message3.Hash }, "d");
-            manager.HandleMessage(message4);
+            var message4 = new Message(nameof(TestEntity.StringProperty), new [] { message2, message3 }, "d");
+            message4.ApplyWith(manager);
             
             Assert.That(manager.HasConflicts, Is.False, "There should be no conflicts any more");
             Assert.That(manager.Entity.StringProperty, Is.EqualTo("d"), "Current value should be 'd'");
@@ -143,11 +149,12 @@ namespace Pof.Tests
             manager.Commit();
 
             Assert.That(_messagesSentToThePump.Count, Is.EqualTo(2), "There should be exactly 2 messages");
-            
-            var integerMessage = GetPumpMessageFor(nameof(manager.Entity.IntegerProperty));
-            var stringMessage = GetPumpMessageFor(nameof(manager.Entity.StringProperty));
 
             // TODO: see how this test could be rewritten or simply removed
+            
+            // var integerMessage = GetPumpMessageFor(nameof(manager.Entity.IntegerProperty));
+            // var stringMessage = GetPumpMessageFor(nameof(manager.Entity.StringProperty));
+
             // Assert.That(integerMessage.Value, Is.EqualTo(manager.Entity.IntegerProperty), nameof(manager.Entity.IntegerProperty));
             // Assert.That(stringMessage.Value, Is.EqualTo(manager.Entity.StringProperty), nameof(manager.Entity.StringProperty));
         }
@@ -181,10 +188,11 @@ namespace Pof.Tests
 
             Assert.That(_messagesSentToThePump.Count, Is.EqualTo(2), "There should be exactly 2 messages");
             
-            var integerMessage = GetPumpMessageFor(nameof(manager.Entity.IntegerProperty));
-            var stringMessage = GetPumpMessageFor(nameof(manager.Entity.StringProperty));
-
             // TODO: see how this test can be rewritten, or perhaps simply removed
+
+            //var integerMessage = GetPumpMessageFor(nameof(manager.Entity.IntegerProperty));
+            //var stringMessage = GetPumpMessageFor(nameof(manager.Entity.StringProperty));
+
             // Assert.That(integerMessage.Value, Is.EqualTo(manager.Entity.IntegerProperty), nameof(manager.Entity.IntegerProperty));
             // Assert.That(stringMessage.Value, Is.EqualTo(manager.Entity.StringProperty), nameof(manager.Entity.StringProperty));            
         }
@@ -201,12 +209,7 @@ namespace Pof.Tests
             _pump.Setup(x => x.Push(topic, It.IsAny<Message>()))
                 .Callback<string, Message>((t, m) => { _messagesSentToThePump.Add(m); });
         }
-
-        private Message GetPumpMessageFor(string propertyName)
-        {
-            return _messagesSentToThePump.FirstOrDefault(m => m.PropertyName == propertyName);
-        }
-
+        
         private EntityManager<TestEntity> CreateTestEntityManager()
         {
             return EntityManagerFactory.Create(_testEntity, _pump.Object);

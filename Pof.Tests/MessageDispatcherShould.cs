@@ -23,18 +23,18 @@ namespace Pof.Tests
             var handler1Id = Guid.NewGuid();
             var handler1 = new Mock<IMessageHandler>();
             handler1.SetupGet(x => x.Id).Returns(handler1Id);
-            handler1.Setup(x => x.HandleMessage(It.IsAny<Message>()));
+            handler1.Setup(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()));
             var handler2Id = Guid.NewGuid();
             var handler2 = new Mock<IMessageHandler>();
             handler2.SetupGet(x => x.Id).Returns(handler2Id);
-            handler2.Setup(x => x.HandleMessage(It.IsAny<Message>()));
+            handler2.Setup(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()));
 
             dispatcher.Subscribe(handler1.Object, topic);
             dispatcher.Subscribe(handler2.Object, topic);
             dispatcher.Dispatch(topic, CreateTestMessage());
             
-            handler1.Verify(x => x.HandleMessage(It.IsAny<Message>()), Times.Once);
-            handler2.Verify(x => x.HandleMessage(It.IsAny<Message>()), Times.Once);
+            handler1.Verify(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()), Times.Once);
+            handler2.Verify(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()), Times.Once);
         }
         
         [Test]
@@ -46,18 +46,18 @@ namespace Pof.Tests
             var handler1Id = Guid.NewGuid();
             var handler1 = new Mock<IMessageHandler>();
             handler1.SetupGet(x => x.Id).Returns(handler1Id);
-            handler1.Setup(x => x.HandleMessage(It.IsAny<Message>()));
+            handler1.Setup(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()));
             var handler2Id = Guid.NewGuid();
             var handler2 = new Mock<IMessageHandler>();
             handler2.SetupGet(x => x.Id).Returns(handler2Id);
-            handler2.Setup(x => x.HandleMessage(It.IsAny<Message>()));
+            handler2.Setup(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()));
 
             dispatcher.Subscribe(handler1.Object, topic1);
             dispatcher.Subscribe(handler2.Object, topic2);
             dispatcher.Dispatch(topic1, CreateTestMessage());
             
-            handler1.Verify(x => x.HandleMessage(It.IsAny<Message>()), Times.Once);
-            handler2.Verify(x => x.HandleMessage(It.IsAny<Message>()), Times.Never);
+            handler1.Verify(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()), Times.Once);
+            handler2.Verify(x => x.RouteMessage(It.IsAny<Message>(), It.IsAny<string>()), Times.Never);
         }
         
         private Message CreateTestMessage()

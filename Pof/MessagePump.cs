@@ -25,7 +25,7 @@ namespace Pof
             _dispatcher.Subscribe(handler, topic);
             foreach (var message in _store.GetAllFromTopic(topic))
             {
-                handler.HandleMessage(message);
+                message.ApplyWith(handler);
             }
         }
 

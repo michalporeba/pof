@@ -62,15 +62,14 @@ namespace Pof
             _messagePump = messagePump;
         }
 
-        /// <inheritdoc cref="IMessageHandler"/>
-        public void HandleMessage(Message message)
+        public void RouteMessage(Message message, string propertyName)
         {
-            if (!_handlers.ContainsKey(message.PropertyName))
-                _handlers.Add(message.PropertyName, new PropertyHandler(Entity, message.PropertyName));
+            if (!_handlers.ContainsKey(propertyName))
+                _handlers.Add(propertyName, new PropertyHandler(Entity, propertyName));
             
-            message.ApplyWith(_handlers[message.PropertyName]);
+            message.ApplyWith(_handlers[propertyName]);
         }
-
+        
         /// <inheritdoc cref="IMessageHandler"/>
         public bool HasConflicts()
         {

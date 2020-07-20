@@ -35,13 +35,13 @@ namespace Pof
             {
                 _subscriptions = ImmutableDictionary<Guid, IMessageHandler>.Empty;
             }
-            
+
             public void Dispatch(Message message)
             {
-                foreach(var subscription in _subscriptions)
-                    subscription.Value.HandleMessage(message);
+                foreach (var subscription in _subscriptions)
+                    message.ApplyWith(subscription.Value);
             }
-            
+
             public void Subscribe(IMessageHandler handler)
             {
                 if (!_subscriptions.ContainsKey(handler.Id))
