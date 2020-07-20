@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Pof.Internal
 {
-    internal class PropertyHandler
+    internal class PropertyHandler : IPropertySetter
     {
         private readonly object _object;
         private readonly PropertyInfo _property;
@@ -37,18 +37,18 @@ namespace Pof.Internal
             _isDraft = false;
         }
 
-        public void HandleMessage(Message message)
+        public void AddState(object? value, string hash, ImmutableSortedSet<string> predecessors)
         {
-            if (!_predecessors.Contains(message.Hash))
+            if (!_predecessors.Contains(hash))
             {
-                _candidates = _candidates.Add(new Candidate(message.Hash, message.Value));
-                _property.SetValue(_object, message.Value);
+                _candidates = _candidates.Add(new Candidate(hash, value));
+                _property.SetValue(_object, value);
             }
 
-            var newPredecessors = message.Predecessors.Except(_predecessors);
+            var newPredecessors = predecessors.Except(_predecessors);
             _candidates = _candidates.RemoveAll(c => newPredecessors.Contains(c.MessageHash));
-            
-            _predecessors = _predecessors.AddRange(message.Predecessors);
+
+            _predecessors = _predecessors.AddRange(predecessors);
         }
 
         public IEnumerable<Message> GetMessages()
@@ -68,7 +68,7 @@ namespace Pof.Internal
                 value);
             
             _outgoingQueue = _outgoingQueue.Enqueue(message);
-            HandleMessage(message);
+            message.ApplyWith(this);
         }
     }
 }

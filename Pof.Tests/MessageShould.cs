@@ -16,15 +16,6 @@ namespace Pof.Tests
         }
 
         [Test]
-        public void set_value_from_constructor(
-            [ShortStrings] [SmallIntegers] object value
-        )
-        {
-            var test = new Message(string.Empty, value);
-            Assert.That(test.Value, Is.EqualTo(value));
-        }
-
-        [Test]
         public void two_messages_with_the_same_content_should_have_the_same_hash(
             [ShortStrings]string propertyName,
             [SmallIntegers]int value
@@ -79,7 +70,7 @@ namespace Pof.Tests
             var value = message.ToString();
             Assert.That(value, Contains.Substring(message.Hash), $"TShould contain value of {nameof(message.Hash)}");
             Assert.That(value, Contains.Substring(message.PropertyName), $"Should contain value of {nameof(message.PropertyName)}");
-            Assert.That(value, Contains.Substring(message.Value?.ToString()), $"Should contain value of {nameof(message.Value)}");
+            Assert.That(value, Contains.Substring(propertyValue), "Should contain value");
         }
     }
 }
