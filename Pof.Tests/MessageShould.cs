@@ -7,7 +7,17 @@ namespace Pof.Tests
     public class MessageShould
     {
         [Test]
-        public void two_messages_with_the_same_content_should_have_the_same_hash(
+        public void two_messages_with_different_content_should_have_different_signatures()
+        {
+            var message1 = new Message("a", 1);
+            var message2 = new Message("b", 2);
+
+            Assert.That(message1.Equals(message2), Is.False, "Messages should not be equal");
+            Assert.That(message1.GetHashCode(), Is.Not.EqualTo(message2.GetHashCode()), "Hash codes should not match");
+        }
+        
+        [Test]
+        public void two_messages_with_the_same_content_should_have_the_same_signatures(
             [ShortStrings]string propertyName,
             [SmallIntegers]int value
             )
@@ -15,7 +25,8 @@ namespace Pof.Tests
             var message1 = new Message(propertyName, value);
             var message2 = new Message(propertyName, value);
 
-            Assert.That(message1.Equals(message2), Is.True);
+            Assert.That(message1.Equals(message2), Is.True, "Messages should be equal");
+            Assert.That(message1.GetHashCode(), Is.EqualTo(message2.GetHashCode()), "Hash codes should match");
         }
 
         [Test]
@@ -39,8 +50,8 @@ namespace Pof.Tests
         public void two_messages_with_the_same_parents_should_have_the_same_hash()
         {
             var parent = new Message("propertyName", "oldValue");
-            var message1 = new Message("propertyName", parent.GetHash(), "newValue");
-            var message2 = new Message("propertyName", parent.GetHash(), "newValue");
+            var message1 = new Message("propertyName", parent.GetSignature(), "newValue");
+            var message2 = new Message("propertyName", parent.GetSignature(), "newValue");
             Assert.That(message1.Equals(message2), Is.True);
         }
         
@@ -59,7 +70,7 @@ namespace Pof.Tests
             var propertyValue = Guid.NewGuid().ToString().Substring(0, 4);
             var message = new Message(propertyName, propertyValue);
             var value = message.ToString();
-            Assert.That(value, Contains.Substring(message.GetHash()), $"TShould contain the hash");
+            Assert.That(value, Contains.Substring(message.GetSignature()), $"TShould contain the hash");
             Assert.That(value, Contains.Substring(propertyName), $"Should contain property name");
             Assert.That(value, Contains.Substring(propertyValue), "Should contain value");
         }

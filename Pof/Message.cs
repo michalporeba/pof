@@ -4,7 +4,6 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Immutable;
 using System.Linq;
-using Pof.Internal;
 
 namespace Pof
 {
@@ -12,8 +11,7 @@ namespace Pof
         : IEquatable<Message>
     {
         private readonly MessageContent _content;
-
-        private string _hash { get; }
+        private readonly string _signature;
 
         public Message(string propertyName, object? value)
             : this(propertyName, new[] { string.Empty }, value)
@@ -21,7 +19,7 @@ namespace Pof
         }
 
         public Message(string propertyName, Message predecessor, object? value)
-            : this(propertyName, new[] {predecessor.GetHash()}, value)
+            : this(propertyName, new[] {predecessor.GetSignature()}, value)
         {
         }
         
@@ -32,15 +30,15 @@ namespace Pof
         
         public Message(string propertyName, Message[] predecessors, object? value)
         {
-            var parentHashes = predecessors.Select(x => x.GetHash()).ToArray();
-            _content = new MessageContent(propertyName, parentHashes, value);
-            _hash = CalculateHash(_content);
+            var parentSignatures = predecessors.Select(x => x.GetSignature()).ToArray();
+            _content = new MessageContent(propertyName, parentSignatures, value);
+            _signature = CalculateSignature(_content);
         }
         
         public Message(string propertyName, string[] predecessors, object? value)
         {
             _content = new MessageContent(propertyName, predecessors, value);
-            _hash = CalculateHash(_content);
+            _signature = CalculateSignature(_content);
         }
 
         public void ApplyWith(IMessageHandler writer)
@@ -50,14 +48,14 @@ namespace Pof
         
         public void ApplyWith(IPropertySetter setter)
         {
-            setter.AddState(_content.Value, _hash, _content.Predecessors);
+            setter.AddState(_content.Value, _signature, _content.Predecessors);
         }
 
-        public string GetHash() => _hash;
+        public string GetSignature() => _signature;
         
-        public override string ToString() => $"Property: {_content.PropertyName}; Value: {_content.Value}; Hash: {_hash};";
+        public override string ToString() => $"Property: {_content.PropertyName}; Value: {_content.Value}; Signature: {_signature};";
 
-        private static string CalculateHash(MessageContent content)
+        private static string CalculateSignature(MessageContent content)
         {
             var json = JsonConvert.SerializeObject(content);
             using var sha = SHA256.Create();
@@ -78,9 +76,9 @@ namespace Pof
             public string PropertyName { get; }
             public object? Value { get; }
 
-            public MessageContent(string propertyName, string[] parentHashes, object? value)
+            public MessageContent(string propertyName, string[] parentSignatures, object? value)
             {
-                Predecessors = ImmutableSortedSet.Create(parentHashes);
+                Predecessors = ImmutableSortedSet.Create(parentSignatures);
                 PropertyName = propertyName;
                 Value = value;
             }
@@ -88,10 +86,10 @@ namespace Pof
 
         public bool Equals(Message other)
         {
-            return _hash.Equals(other._hash);
+            return _signature.Equals(other._signature);
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             return obj is Message other && Equals(other);
         }
@@ -100,7 +98,7 @@ namespace Pof
         {
             unchecked
             {
-                return _hash.GetHashCode();
+                return _signature.GetHashCode();
             }
         }
     }
