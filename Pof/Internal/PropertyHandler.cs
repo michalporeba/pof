@@ -46,7 +46,7 @@ namespace Pof.Internal
             }
 
             var newPredecessors = predecessors.Except(_predecessors);
-            _candidates = _candidates.RemoveAll(c => newPredecessors.Contains(c.MessageHash));
+            _candidates = _candidates.RemoveAll(c => newPredecessors.Contains(c.MessageSignature));
 
             _predecessors = _predecessors.AddRange(predecessors);
         }
@@ -64,7 +64,7 @@ namespace Pof.Internal
         {
             var message = new Message(
                 _property.Name,
-                _candidates.Select(c => c.MessageHash).ToArray(),
+                _candidates.Select(c => c.MessageSignature).ToArray(),
                 value);
             
             _outgoingQueue = _outgoingQueue.Enqueue(message);

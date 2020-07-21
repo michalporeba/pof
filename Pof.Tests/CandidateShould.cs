@@ -9,7 +9,7 @@ namespace Pof.Tests
         public void set_message_hash_in_constructor([ShortStrings] string value)
         {
             var test = new Candidate(value, null);
-            Assert.That(test.MessageHash, Is.EqualTo(value));
+            Assert.That(test.MessageSignature, Is.EqualTo(value));
         }
 
         [Test]

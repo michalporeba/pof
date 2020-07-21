@@ -4,12 +4,12 @@
     /// Represents a potential value of a property
     /// which resulted from processing of a message
     /// </summary>
-    public class Candidate
+    public readonly struct Candidate
     {
         /// <summary>
-        /// Message hash from the message that delivered the proposed value
+        /// Message signature from the message that delivered the proposed value
         /// </summary>
-        public string MessageHash { get; }
+        public string MessageSignature { get; }
         
         /// <summary>
         /// Proposed value
@@ -19,11 +19,11 @@
         /// <summary>
         /// Creates an instance of the Candidate class
         /// </summary>
-        /// <param name="messageHash">Message hash</param>
+        /// <param name="messageSignature">Message signature</param>
         /// <param name="value">Proposed value</param>
-        public Candidate(string messageHash, object? value)
+        public Candidate(string messageSignature, object? value)
         {
-            MessageHash = messageHash;
+            MessageSignature = messageSignature;
             Value = value;
         }
     }
