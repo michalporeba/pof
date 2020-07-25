@@ -40,6 +40,8 @@ Above: Domain specific components which unnecessarily depend on historical model
 
 While the concept is very interesting and has been at the back of my mind for the last 5 years, every time I attempted to do somethinig with it very quickly I got discurrage by how invasive this approach is. It never found a way to simply add it to an existing project, without changing much more than I would want to. 
 
+There are many alterntives and some of them are discussed [here](./Alternatives.md). The one below is one depending on a model with publically available properties, a very Microsoft way to deal with models and one that does not do encapsulation well. But here it is for now. 
+
 ![Proposed Implementation](./docs/Diagrams/ProposedImplementationModel.png)
 
 In the above, proposed implementation the key element provided by the library is an entity `Manager` which is an implementation of `IMessageHandler` and has dependencies on `Message` and `IMessagePump` but doesn't need to know anything about the `Entity` as reflection is used to manage an entity. 
